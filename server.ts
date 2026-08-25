@@ -14,6 +14,7 @@ import { connectionsRouter } from './backend/routes/connections.js';
 import { searchRouter } from './backend/routes/search.js';
 import { seedRouter } from './backend/routes/seed.js';
 import { queryRouter } from './backend/routes/query.js';
+import { healthRouter } from './backend/routes/health.js';
 
 dotenv.config();
 
@@ -23,28 +24,8 @@ async function startServer() {
 
   app.use(express.json());
 
-  // API Health check & Database status
-  app.get('/api/health', async (req: Request, res: Response) => {
-    try {
-      const status = await GraphService.getStatus();
-      res.json({
-        database: 'CognoDB',
-        connected: status.connected,
-        appName: 'SkillGraph',
-        ...status,
-      });
-    } catch (err: any) {
-      res.status(500).json({
-        database: 'CognoDB',
-        connected: false,
-        status: 'error',
-        message: 'Unable to check database status.',
-        error: err.message,
-      });
-    }
-  });
-
   // Mount API Routers
+  app.use('/api/health', healthRouter);
   app.use('/api/skills', skillsRouter);
   app.use('/api/technologies', technologiesRouter);
   app.use('/api/roles', rolesRouter);
